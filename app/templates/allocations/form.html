@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3>Edit Allocation</h3>
+
+<form method="post" class="card p-3">
+
+    <label>Event</label>
+    <select name="event_id" class="form-control" required>
+        {% for e in events %}
+            <option value="{{ e.id }}"
+                {% if allocation.event_id == e.id %}selected{% endif %}>
+                {{ e.title }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <label class="mt-3">Resource</label>
+    <select name="resource_id" class="form-control" required>
+        {% for r in resources %}
+            <option value="{{ r.id }}"
+                {% if allocation.resource_id == r.id %}selected{% endif %}>
+                {{ r.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button class="btn btn-primary mt-4">
+        Update Allocation
+    </button>
+
+</form>
+
+{% endblock %}

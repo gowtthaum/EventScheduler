@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="dashboard-cards">
+
+    <div class="stat-card">
+        <h3>Total Events</h3>
+        <p>{{ total_events }}</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>Total Resources</h3>
+        <p>{{ total_resources }}</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>Allocations</h3>
+        <p>{{ total_allocations }}</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>Resource Utilisation Report</h3>
+        <table>
+            <tr>
+                <th>Resource</th>
+                <th>Hours</th>
+            </tr>
+            {% for r in utilisation %}
+            <tr>
+                <td>{{ r.name }}</td>
+                <td>{{ r.hours }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

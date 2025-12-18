@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>Resources</h2>
+
+    <!-- 🔹 EVENT SELECT FOR SUGGESTION -->
+    <label>Select Event (for suggestions)</label>
+    <select id="eventSelect">
+        <option value="">-- Select Event --</option>
+        {% for e in events %}
+            <option value="{{ e.id }}">{{ e.title }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- 🔹 SUGGESTED RESOURCES -->
+    <div id="suggestions" style="margin:15px 0;"></div>
+
+    <!-- 🔹 MANUAL ADD -->
+    <form method="post" style="display:flex; gap:10px;">
+        <input type="text" name="name" placeholder="Custom resource" required>
+        <button type="submit">Add Resource</button>
+    </form>
+
+    <hr>
+
+    <!-- 🔹 RESOURCE LIST -->
+    {% if resources %}
+    <table>
+        <tr>
+            <th>Resource</th>
+            <th class="actions">Action</th>
+        </tr>
+        {% for r in resources %}
+        <tr>
+            <td>{{ r.name }}</td>
+            <td class="actions">
+                <a href="{{ url_for('resources.delete_resource', id=r.id) }}"
+                   onclick="return confirm('Delete resource?');">
+                    <button class="danger">Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No resources added yet.</p>
+    {% endif %}
+</div>
+
+<!-- 🔹 JS FOR SUGGESTIONS -->
+<script>
+document.getElementById("eventSelect").addEventListener("change", function () {
+    const eventId = this.value;
+    const container = document.getElementById("suggestions");
+    container.innerHTML = "";
+
+    if (!eventId) return;
+
+    fetch(`/resources/suggest/${eventId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.length === 0) return;
+
+            container.innerHTML = "<strong>Suggested Resources:</strong><br>";
+
+            data.forEach(name => {
+                const btn = document.createElement("button");
+                btn.textContent = name;
+                btn.style.margin = "5px";
+                btn.onclick = () => addResource(name);
+                container.appendChild(btn);
+            });
+        });
+});
+
+function addResource(name) {
+    fetch("/resources/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "name=" + encodeURIComponent(name)
+    }).then(() => location.reload());
+}
+</script>
+
+{% endblock %}

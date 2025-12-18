@@ -1,0 +1,30 @@
+# Event Scheduling & Resource Allocation System
+
+This project is developed as part of the Flask Hiring Test for
+Aerele Technologies Private Limited.
+
+## Tech Stack
+- Python
+- Flask
+- SQLite
+- HTML/CSS
+
+## Features
+- Create and manage events
+- Create and manage shared resources
+- Allocate resources to events
+- Prevent resource double-booking using conflict detection
+- Generate resource utilisation report
+
+## Conflict Detection Logic
+The system checks time overlap before allocating a resource:
+- Partial overlap
+- Full overlap
+- Nested time intervals
+
+## How to Run
+```bash
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python run.py

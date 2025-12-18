@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3>Event Calendar</h3>
+
+<div id="calendar"></div>
+
+<!-- 🔥 EVENT POPUP MODAL -->
+<div id="eventModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h3 id="modalTitle"></h3>
+
+        <p><strong>Start:</strong> <span id="modalStart"></span></p>
+        <p><strong>End:</strong> <span id="modalEnd"></span></p>
+
+        <!-- 🔥 BUTTON FIX -->
+        <div class="modal-actions">
+            <button class="btn-primary" id="editBtn">Edit</button>
+            <button class="btn-danger" id="deleteBtn">Delete</button>
+            <button class="btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- FullCalendar JS -->
+<script src="/static/vendor/fullcalendar/index.global.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const calendarEl = document.getElementById("calendar");
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+
+        /* 🔹 Default View */
+        initialView: "dayGridMonth",
+
+        /* 🔹 Header Toolbar */
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay,multiMonthYear"
+        },
+
+        /* 🔹 Year View */
+        views: {
+            multiMonthYear: {
+                type: "multiMonth",
+                duration: { years: 1 },
+                buttonText: "year"
+            }
+        },
+
+        /* 🔹 Events API */
+        events: "/events/api",
+
+        /* 🔹 Event Click Popup */
+        eventClick: function(info) {
+            const event = info.event;
+
+            document.getElementById("modalTitle").innerText = event.title;
+            document.getElementById("modalStart").innerText =
+                event.start.toLocaleString();
+
+            document.getElementById("modalEnd").innerText =
+                event.end ? event.end.toLocaleString() : "N/A";
+
+            document.getElementById("editBtn").href =
+                "/events/edit/" + event.id;
+
+            document.getElementById("deleteForm").action =
+                "/events/delete/" + event.id;
+
+            document.getElementById("eventModal").style.display = "block";
+        }
+    });
+
+    calendar.render();
+});
+
+/* 🔹 Close Modal */
+function closeModal() {
+    document.getElementById("eventModal").style.display = "none";
+}
+</script>
+
+{% endblock %}

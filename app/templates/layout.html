@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Scheduler</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    
+    <aside class="sidebar">
+        <h2>Scheduler</h2>
+        <a href="{{ url_for('home') }}">Dashboard</a>
+        <a href="{{ url_for('events.list_events') }}">Events</a>
+        <a href="{{ url_for('resources.list_resources') }}">Resources</a>
+        <a href="{{ url_for('allocations.assign_resources') }}">Allocations</a>
+      <a href="{{ url_for('reports.utilisation') }}">Reports</a>
+
+
+    </aside>
+
+    
+    <main class="main-content">
+
+        <div class="topbar">
+            <h2></h2>
+        </div>
+
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

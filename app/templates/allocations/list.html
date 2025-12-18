@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Resource Allocation</h2>
+
+<div class="card">
+  <form method="POST">
+  <div style="display:flex; gap:10px; margin-bottom:15px">
+
+    <select name="event_id" required>
+      <option value="">Select Event</option>
+      {% for event in events %}
+        <option value="{{ event.id }}">{{ event.title }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="resource_id" required>
+      <option value="">Select Resource</option>
+      {% for resource in resources %}
+        <option value="{{ resource.id }}">{{ resource.name }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit">Allocate</button>
+
+  </div>
+</form>
+
+</div>
+
+<br>
+
+<div class="card">
+ <table>
+  <thead>
+    <tr>
+      <th>Event</th>
+      <th>Resource</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Day</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in allocations %}
+    <tr>
+      <td>{{ a.event.title }}</td>
+      <td>{{ a.resource.name }}</td>
+
+      <td>
+        {{ a.start_time.date() }}
+        {% if a.start_time.date() != a.end_time.date() %}
+          → {{ a.end_time.date() }}
+        {% endif %}
+      </td>
+
+      <td>
+        {{ a.start_time.strftime("%H:%M") }} -
+        {{ a.end_time.strftime("%H:%M") }}
+      </td>
+
+      <td>
+        {{ a.start_time.strftime("%A") }}
+        {% if a.start_time.date() != a.end_time.date() %}
+          → {{ a.end_time.strftime("%A") }}
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="5" style="text-align:center">No allocations yet</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+</div>
+{% endblock %}

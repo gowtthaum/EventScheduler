@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h3>Availability – {{ resource.name }}</h3>
+
+    {% if allocations %}
+        <table>
+            <tr>
+                <th>Event</th>
+            </tr>
+            {% for a in allocations %}
+            <tr>
+                <td>{{ a.event.title }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No allocations found.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

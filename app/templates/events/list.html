@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="card">
+    <div style="display:flex; justify-content: space-between; align-items:center;">
+        <h2>Events</h2>
+
+        <!-- ✅ ADD EVENT BUTTON -->
+        <a href="{{ url_for('events.create_event') }}">
+            <button>Add Event</button>
+        </a>
+    </div>
+
+    <br>
+
+    {% if events %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th class="actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in events %}
+            <tr>
+                <td>{{ e.title }}</td>
+                <td>{{ e.start_time }}</td>
+                <td>{{ e.end_time }}</td>
+                <td class="actions">
+                    <div class="action-buttons">
+                        <a href="{{ url_for('events.edit_event', id=e.id) }}">
+                            <button>Edit</button>
+                        </a>
+
+                        <a href="{{ url_for('events.delete_event', id=e.id) }}"
+                           onclick="return confirm('Delete this event?');">
+                            <button class="danger">Delete</button>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+        <p>No events created yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
