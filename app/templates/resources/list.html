@@ -4,7 +4,6 @@
 <div class="card">
     <h2>Resources</h2>
 
-    <!-- 🔹 EVENT SELECT FOR SUGGESTION -->
     <label>Select Event (for suggestions)</label>
     <select id="eventSelect">
         <option value="">-- Select Event --</option>
@@ -13,10 +12,8 @@
         {% endfor %}
     </select>
 
-    <!-- 🔹 SUGGESTED RESOURCES -->
     <div id="suggestions" style="margin:15px 0;"></div>
 
-    <!-- 🔹 MANUAL ADD -->
     <form method="post" style="display:flex; gap:10px;">
         <input type="text" name="name" placeholder="Custom resource" required>
         <button type="submit">Add Resource</button>
@@ -24,31 +21,33 @@
 
     <hr>
 
-    <!-- 🔹 RESOURCE LIST -->
     {% if resources %}
     <table>
         <tr>
             <th>Resource</th>
-            <th class="actions">Action</th>
+            <th>Action</th>
         </tr>
-        {% for r in resources %}
+
+        {% for resource in resources %}
         <tr>
-            <td>{{ r.name }}</td>
-            <td class="actions">
-                <a href="{{ url_for('resources.delete_resource', id=r.id) }}"
-                   onclick="return confirm('Delete resource?');">
-                    <button class="danger">Delete</button>
-                </a>
+            <td>{{ resource.name }}</td>
+            <td>
+                <!-- 🔴 ONLY FIX: type="button" -->
+                <button type="button"
+                        class="btn-delete"
+                        data-delete-url="{{ url_for('resources.delete_resource', resource_id=resource.id) }}"
+                        onclick="openConfirmModal(this.dataset.deleteUrl)">
+                    Delete
+                </button>
             </td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
-        <p>No resources added yet.</p>
+        <p>No resources found.</p>
     {% endif %}
 </div>
 
-<!-- 🔹 JS FOR SUGGESTIONS -->
 <script>
 document.getElementById("eventSelect").addEventListener("change", function () {
     const eventId = this.value;

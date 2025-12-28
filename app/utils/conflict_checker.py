@@ -35,3 +35,5 @@ def suggest_available_resources(resource_type, start, end):
             suggestions.append(resource.resource_name)
 
     return suggestions
+def has_time_conflict(existing_start, existing_end, new_start, new_end):
+    return not (new_end <= existing_start or new_start >= existing_end)

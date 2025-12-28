@@ -3,9 +3,14 @@
 
 <h3>Event Calendar</h3>
 
+<!-- FullCalendar CSS -->
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+
+<!-- Calendar Container -->
 <div id="calendar"></div>
 
-<!-- 🔥 EVENT POPUP MODAL -->
+<!-- EVENT DETAILS MODAL -->
 <div id="eventModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
@@ -15,64 +20,57 @@
         <p><strong>Start:</strong> <span id="modalStart"></span></p>
         <p><strong>End:</strong> <span id="modalEnd"></span></p>
 
-        <!-- 🔥 BUTTON FIX -->
         <div class="modal-actions">
-            <button class="btn-primary" id="editBtn">Edit</button>
-            <button class="btn-danger" id="deleteBtn">Delete</button>
+            <a id="editBtn" class="edit-btn">Edit</a>
+
+            <button type="button"
+                    class="btn-delete"
+                    onclick="openConfirmModal(currentDeleteUrl)">
+                Delete
+            </button>
+
             <button class="btn-secondary" onclick="closeModal()">Close</button>
         </div>
     </div>
 </div>
 
-
-<!-- FullCalendar JS -->
-<script src="/static/vendor/fullcalendar/index.global.min.js"></script>
+<!-- FullCalendar JS (ONLY ONCE) -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 
 <script>
+let currentDeleteUrl = null;
+
 document.addEventListener("DOMContentLoaded", function () {
 
     const calendarEl = document.getElementById("calendar");
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
-
-        /* 🔹 Default View */
         initialView: "dayGridMonth",
 
-        /* 🔹 Header Toolbar */
         headerToolbar: {
             left: "prev,next today",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay,multiMonthYear"
+            right: "dayGridMonth,timeGridWeek,timeGridDay"
         },
 
-        /* 🔹 Year View */
-        views: {
-            multiMonthYear: {
-                type: "multiMonth",
-                duration: { years: 1 },
-                buttonText: "year"
-            }
-        },
-
-        /* 🔹 Events API */
         events: "/events/api",
 
-        /* 🔹 Event Click Popup */
         eventClick: function(info) {
+            info.jsEvent.preventDefault();
+
             const event = info.event;
 
             document.getElementById("modalTitle").innerText = event.title;
             document.getElementById("modalStart").innerText =
                 event.start.toLocaleString();
-
             document.getElementById("modalEnd").innerText =
                 event.end ? event.end.toLocaleString() : "N/A";
 
             document.getElementById("editBtn").href =
-                "/events/edit/" + event.id;
+                `/events/?edit=${event.id}`;
 
-            document.getElementById("deleteForm").action =
-                "/events/delete/" + event.id;
+            currentDeleteUrl =
+                `/events/delete/${event.id}`;
 
             document.getElementById("eventModal").style.display = "block";
         }
@@ -81,7 +79,6 @@ document.addEventListener("DOMContentLoaded", function () {
     calendar.render();
 });
 
-/* 🔹 Close Modal */
 function closeModal() {
     document.getElementById("eventModal").style.display = "none";
 }

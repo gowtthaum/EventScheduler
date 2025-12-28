@@ -1,81 +1,90 @@
-from flask import Blueprint, render_template, request, redirect, url_for
-from app.models import db, Event,Resource
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
+
 from datetime import datetime
+from app.models import db, Event, EventResourceAllocation
 
 events_bp = Blueprint('events', __name__, url_prefix='/events')
-def suggest_resources(event_title):
-    title = event_title.lower()
-
-    if "meeting" in title or "review" in title:
-        return ["Meeting Room", "Projector"]
-    elif "seminar" in title or "presentation" in title:
-        return ["Seminar Hall", "Microphone", "Projector"]
-    elif "training" in title or "workshop" in title:
-        return ["Training Room", "Laptop", "Whiteboard"]
-    else:
-        return ["Conference Room"]
 
 
-@events_bp.route('/')
+# 📌 LIST EVENTS + ADD FORM + EDIT FORM
+@events_bp.route('/', methods=['GET'])
 def list_events():
     events = Event.query.all()
-    return render_template('events/list.html', events=events)
+    edit_event = None
+
+    edit_id = request.args.get('edit')
+    if edit_id:
+        edit_event = Event.query.get(int(edit_id))
+
+    return render_template(
+        'events/list.html',
+        events=events,
+        edit_event=edit_event
+    )
 
 
-@events_bp.route('/create', methods=['GET', 'POST'])
+# 📌 CREATE EVENT
+@events_bp.route('/create', methods=['POST'])
 def create_event():
-    if request.method == 'POST':
-        title = request.form['title']
+    title = request.form.get('title')
+    start_time = request.form.get('start_time')
+    end_time = request.form.get('end_time')
 
-        event = Event(
-            title=title,
-            start_time=datetime.strptime(
-                request.form['start_time'], "%Y-%m-%dT%H:%M"
-            ),
-            end_time=datetime.strptime(
-                request.form['end_time'], "%Y-%m-%dT%H:%M"
-            )
-        )
-        db.session.add(event)
-        db.session.commit()
+    start_time = datetime.strptime(start_time, '%Y-%m-%dT%H:%M')
+    end_time = datetime.strptime(end_time, '%Y-%m-%dT%H:%M')
 
-        # 🔥 AUTO RESOURCE SUGGESTION
-        suggested_resources = suggest_resources(title)
+    event = Event(title=title, start_time=start_time, end_time=end_time)
+    db.session.add(event)
+    db.session.commit()
 
-        for res_name in suggested_resources:
-            existing = Resource.query.filter_by(name=res_name).first()
-            if not existing:
-                db.session.add(Resource(name=res_name))
+    flash('Event added successfully', 'success')
+    return redirect(url_for('events.list_events'))
 
-        db.session.commit()
 
-        return redirect(url_for('events.list_events'))
+# 📌 UPDATE EVENT
+@events_bp.route('/update/<int:event_id>', methods=['POST'])
+def update_event(event_id):
+    event = Event.query.get_or_404(event_id)
 
-    return render_template('events/form.html')
+    event.title = request.form.get('title')
+    event.start_time = datetime.strptime(
+        request.form.get('start_time'), '%Y-%m-%dT%H:%M'
+    )
+    event.end_time = datetime.strptime(
+        request.form.get('end_time'), '%Y-%m-%dT%H:%M'
+    )
 
-@events_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
-def edit_event(id):
-    event = Event.query.get_or_404(id)
+    db.session.commit()
+    flash('Event updated successfully', 'success')
+    return redirect(url_for('events.list_events'))
 
-    if request.method == 'POST':
-        event.title = request.form['title']
-        event.start_time = datetime.strptime(
-            request.form['start_time'], "%Y-%m-%dT%H:%M"
-        )
-        event.end_time = datetime.strptime(
-            request.form['end_time'], "%Y-%m-%dT%H:%M"
-        )
-        db.session.commit()
-        return redirect(url_for('events.list_events'))
+@events_bp.route('/delete/<int:event_id>', methods=['GET', 'POST'])
+def delete_event(event_id):
+    # delete allocations first
+    EventResourceAllocation.query.filter_by(event_id=event_id).delete()
 
-    return render_template('events/form.html', event=event)
-
-@events_bp.route('/delete/<int:id>')
-def delete_event(id):
-    event = Event.query.get_or_404(id)
+    event = Event.query.get_or_404(event_id)
     db.session.delete(event)
     db.session.commit()
+
+    flash('Event deleted successfully', 'success')
     return redirect(url_for('events.list_events'))
-@events_bp.route('/home')
-def home():
-    return redirect(url_for('events.list_events'))
+
+@events_bp.route('/api')
+def events_api():
+    events = Event.query.all()
+
+    data = []
+    for event in events:
+        data.append({
+            "id": event.id,
+            "title": event.title,
+            "start": event.start_time.isoformat(),
+            "end": event.end_time.isoformat() if event.end_time else None
+        })
+        return jsonify(data)
+
+@events_bp.route('/calendar')
+def calendar_view():
+    return render_template('events/calendar.html')
+

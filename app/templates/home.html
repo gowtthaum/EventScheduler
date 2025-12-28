@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="dashboard-cards">
+<!-- STAT CARDS -->
+<div class="dashboard-stats">
 
     <div class="stat-card">
         <h3>Total Events</h3>
@@ -18,22 +19,34 @@
         <p>{{ total_allocations }}</p>
     </div>
 
-    <div class="stat-card">
-        <h3>Resource Utilisation Report</h3>
-        <table>
-            <tr>
-                <th>Resource</th>
-                <th>Hours</th>
-            </tr>
-            {% for r in utilisation %}
-            <tr>
-                <td>{{ r.name }}</td>
-                <td>{{ r.hours }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+</div>
 
+<!-- UTILISATION REPORT -->
+<div class="dashboard-report">
+    <div class="report-card">
+        <h3>Resource Utilisation Report</h3>
+
+        {% if utilisation %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Resource</th>
+                    <th>Hours Used</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in utilisation %}
+                <tr>
+                    <td>{{ r.resource }}</td>
+                    <td>{{ r.hours }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No allocation data available.</p>
+        {% endif %}
+    </div>
 </div>
 
 {% endblock %}

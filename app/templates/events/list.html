@@ -1,55 +1,75 @@
 {% extends "layout.html" %}
-
 {% block content %}
 
-<div class="card">
-    <div style="display:flex; justify-content: space-between; align-items:center;">
-        <h2>Events</h2>
+<h2>Events</h2>
 
-        <!-- ✅ ADD EVENT BUTTON -->
-        <a href="{{ url_for('events.create_event') }}">
-            <button>Add Event</button>
-        </a>
-    </div>
+<form method="post"
+      action="{% if edit_event %}
+                  {{ url_for('events.update_event', event_id=edit_event.id) }}
+              {% else %}
+                  {{ url_for('events.create_event') }}
+              {% endif %}"
+      class="card">
 
-    <br>
+    <label>Title</label>
+    <input type="text" name="title"
+           value="{{ edit_event.title if edit_event else '' }}"
+           required>
 
-    {% if events %}
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th class="actions">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for e in events %}
-            <tr>
-                <td>{{ e.title }}</td>
-                <td>{{ e.start_time }}</td>
-                <td>{{ e.end_time }}</td>
-                <td class="actions">
-                    <div class="action-buttons">
-                        <a href="{{ url_for('events.edit_event', id=e.id) }}">
-                            <button>Edit</button>
-                        </a>
+    <label>Start Time</label>
+    <input type="datetime-local" name="start_time"
+           value="{{ edit_event.start_time.strftime('%Y-%m-%dT%H:%M') if edit_event else '' }}"
+           required>
 
-                        <a href="{{ url_for('events.delete_event', id=e.id) }}"
-                           onclick="return confirm('Delete this event?');">
-                            <button class="danger">Delete</button>
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <label>End Time</label>
+    <input type="datetime-local" name="end_time"
+           value="{{ edit_event.end_time.strftime('%Y-%m-%dT%H:%M') if edit_event else '' }}"
+           required>
 
-    {% else %}
-        <p>No events created yet.</p>
+    <br><br>
+    <button type="submit">
+        {{ 'Update Event' if edit_event else 'Add Event' }}
+    </button>
+
+    {% if edit_event %}
+        <a href="{{ url_for('events.list_events') }}" class="Cancel">Cancel</a>
     {% endif %}
-</div>
+</form>
+
+<hr>
+
+<table border="1" cellpadding="8" width="100%">
+    <tr>
+        <th>Title</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for event in events %}
+    <tr>
+        <td>{{ event.title }}</td>
+        <td>{{ event.start_time }}</td>
+        <td>{{ event.end_time }}</td>
+        <td>
+            <a href="{{ url_for('events.list_events', edit=event.id) }}" class="edit-btn">
+                Edit
+            </a>
+
+            <!-- 🔴 ONLY FIX: type="button" -->
+            <button type="button"
+                    class="btn-delete"
+                    data-delete-url="{{ url_for('events.delete_event', event_id=event.id) }}"
+                    onclick="openConfirmModal(this.dataset.deleteUrl)">
+                Delete
+            </button>
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="4">No events found</td>
+    </tr>
+    {% endfor %}
+</table>
 
 {% endblock %}

@@ -4,8 +4,8 @@
 <h2>Resource Allocation</h2>
 
 <div class="card">
-  <form method="POST">
-  <div style="display:flex; gap:10px; margin-bottom:15px">
+   <form method="POST">
+  <div class="allocation-row">
 
     <select name="event_id" required>
       <option value="">Select Event</option>
@@ -14,7 +14,7 @@
       {% endfor %}
     </select>
 
-    <select name="resource_id" required>
+    <select name="resource_ids" required>
       <option value="">Select Resource</option>
       {% for resource in resources %}
         <option value="{{ resource.id }}">{{ resource.name }}</option>
@@ -26,53 +26,60 @@
   </div>
 </form>
 
+
 </div>
 
 <br>
 
 <div class="card">
- <table>
-  <thead>
-    <tr>
-      <th>Event</th>
-      <th>Resource</th>
-      <th>Date</th>
-      <th>Time</th>
-      <th>Day</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for a in allocations %}
-    <tr>
-      <td>{{ a.event.title }}</td>
-      <td>{{ a.resource.name }}</td>
+    <table>
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Resource</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Day</th>
+            </tr>
+        </thead>
+        <tbody>
 
-      <td>
-        {{ a.start_time.date() }}
-        {% if a.start_time.date() != a.end_time.date() %}
-          → {{ a.end_time.date() }}
-        {% endif %}
-      </td>
+        {% for a in allocations %}
+            <tr>
+                <td>{{ a.event.title }}</td>
+                <td>{{ a.resource.name }}</td>
 
-      <td>
-        {{ a.start_time.strftime("%H:%M") }} -
-        {{ a.end_time.strftime("%H:%M") }}
-      </td>
+                <!-- Date -->
+                <td>
+                    {{ a.start_time.date() }}
+                    {% if a.start_time.date() != a.end_time.date() %}
+                        → {{ a.end_time.date() }}
+                    {% endif %}
+                </td>
 
-      <td>
-        {{ a.start_time.strftime("%A") }}
-        {% if a.start_time.date() != a.end_time.date() %}
-          → {{ a.end_time.strftime("%A") }}
-        {% endif %}
-      </td>
-    </tr>
-    {% else %}
-    <tr>
-      <td colspan="5" style="text-align:center">No allocations yet</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+                <!-- 🔥 RESOURCE ALLOCATION TIME (NOT EVENT TIME) -->
+                <td>
+                    {{ a.start_time.strftime('%H:%M') }} –
+                    {{ a.end_time.strftime('%H:%M') }}
+                </td>
 
+                <!-- Day -->
+                <td>
+                    {{ a.start_time.strftime('%A') }}
+                    {% if a.start_time.strftime('%A') != a.end_time.strftime('%A') %}
+                        → {{ a.end_time.strftime('%A') }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5" style="text-align:center">
+                    No allocations yet
+                </td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
 </div>
 {% endblock %}
